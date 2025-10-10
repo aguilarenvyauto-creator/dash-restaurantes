@@ -14,14 +14,14 @@ export function DashboardHeader({ onRefresh, isRefreshing, lastUpdated }: Dashbo
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center font-bold text-primary-foreground text-xl">
-              E
+              R
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                Dashboard Analítico
+                RestaurantePro
               </h1>
               <p className="text-sm text-muted-foreground">
-                Monitoreo en tiempo real
+                Sistema de Gestión de Reservas
               </p>
             </div>
           </div>

@@ -13,7 +13,7 @@ export function ServiceDistributionChart({ data }: ServiceDistributionChartProps
   return (
     <div className="glass-card p-6">
       <h3 className="text-lg font-semibold mb-6 text-foreground">
-        Distribución por Servicio
+        Distribución por Sucursales
       </h3>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData}>

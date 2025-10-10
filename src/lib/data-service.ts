@@ -1,14 +1,15 @@
 import { z } from "zod";
 
-// Schema para validar datos del CSV
+// Schema para validar datos del CSV de reservas
 export const DataRowSchema = z.object({
-  fecha: z.string(),
-  cliente: z.string(),
-  servicio: z.string(),
+  nombre: z.string(),
+  dia: z.string(),
+  hora: z.string(),
+  personas: z.coerce.number(),
+  especificaciones: z.string(),
+  sucursal: z.string(),
+  mesa_asignada: z.string(),
   estado: z.string(),
-  valor: z.coerce.number(),
-  canal: z.string(),
-  equipo: z.string(),
 });
 
 export type DataRow = z.infer<typeof DataRowSchema>;
@@ -70,51 +71,74 @@ function parseCSV(text: string): Record<string, string>[] {
 // Datos de ejemplo para desarrollo
 function getMockData(): DataRow[] {
   return [
-    { fecha: "2025-01", cliente: "Tech Corp", servicio: "SEO", estado: "Completado", valor: 3500, canal: "Orgánico", equipo: "Marketing" },
-    { fecha: "2025-01", cliente: "StartupX", servicio: "Redes Sociales", estado: "En Progreso", valor: 2800, canal: "Social", equipo: "Contenido" },
-    { fecha: "2025-01", cliente: "EcommY", servicio: "Diseño Web", estado: "Completado", valor: 5200, canal: "Directo", equipo: "Diseño" },
-    { fecha: "2025-02", cliente: "BrandZ", servicio: "SEO", estado: "Completado", valor: 4100, canal: "Orgánico", equipo: "Marketing" },
-    { fecha: "2025-02", cliente: "LocalBiz", servicio: "Marketing Digital", estado: "En Progreso", valor: 3300, canal: "Paid", equipo: "Marketing" },
-    { fecha: "2025-02", cliente: "GlobalInc", servicio: "Redes Sociales", estado: "Completado", valor: 2900, canal: "Social", equipo: "Contenido" },
-    { fecha: "2025-03", cliente: "FastGrow", servicio: "Diseño Web", estado: "Completado", valor: 6800, canal: "Directo", equipo: "Diseño" },
-    { fecha: "2025-03", cliente: "TechStart", servicio: "SEO", estado: "En Progreso", valor: 3700, canal: "Orgánico", equipo: "Marketing" },
-    { fecha: "2025-03", cliente: "MarketPro", servicio: "Marketing Digital", estado: "Completado", valor: 4500, canal: "Paid", equipo: "Marketing" },
-    { fecha: "2025-04", cliente: "InnovateCo", servicio: "Redes Sociales", estado: "Completado", valor: 3100, canal: "Social", equipo: "Contenido" },
+    { nombre: "Aguilar López", dia: "10/11/2025", hora: "21:30", personas: 4, especificaciones: "Mesa cómoda", sucursal: "Centro", mesa_asignada: "Mesa 4", estado: "Confirmado" },
+    { nombre: "García Torres", dia: "10/11/2025", hora: "20:00", personas: 2, especificaciones: "Cena romántica", sucursal: "Centro", mesa_asignada: "Mesa 7", estado: "Confirmado" },
+    { nombre: "Pérez Hernández", dia: "10/11/2025", hora: "22:00", personas: 5, especificaciones: "Cumpleaños", sucursal: "Pocitos", mesa_asignada: "Mesa 10", estado: "Pendiente" },
+    { nombre: "López Ramírez", dia: "10/11/2025", hora: "14:30", personas: 3, especificaciones: "Cerca de ventana", sucursal: "Carrasco", mesa_asignada: "Mesa 3", estado: "Confirmado" },
+    { nombre: "Ruiz González", dia: "11/11/2025", hora: "21:00", personas: 6, especificaciones: "Grupo grande", sucursal: "Centro", mesa_asignada: "Mesa 12", estado: "Confirmado" },
+    { nombre: "Fernández Díaz", dia: "11/11/2025", hora: "13:00", personas: 2, especificaciones: "Menú ejecutivo", sucursal: "Pocitos", mesa_asignada: "Mesa 2", estado: "Confirmado" },
   ];
 }
 
 export function calculateKPIs(data: DataRow[]) {
-  const totalIngresos = data.reduce((sum, row) => sum + row.valor, 0);
-  const clientesUnicos = new Set(data.map(row => row.cliente)).size;
-  const proyectosCompletados = data.filter(row => row.estado === "Completado").length;
-  const tasaConversion = data.length > 0 ? (proyectosCompletados / data.length) * 100 : 0;
+  const reservasActivas = data.filter(row => row.estado === "Confirmado").length;
+  const capacidadTotal = 18; // 6 mesas por sucursal × 3 sucursales
+  const ocupacionTotal = capacidadTotal > 0 ? (reservasActivas / capacidadTotal) * 100 : 0;
+  
+  const reservasTotales = data.length;
+  const totalPersonas = data.reduce((sum, row) => sum + row.personas, 0);
+  
+  // Calcular días únicos
+  const diasUnicos = new Set(data.map(row => row.dia)).size;
+  const promedioDiario = diasUnicos > 0 ? reservasTotales / diasUnicos : 0;
 
-  // Distribución por servicio
-  const distribucionServicio = data.reduce((acc, row) => {
-    acc[row.servicio] = (acc[row.servicio] || 0) + row.valor;
+  // Distribución por sucursal
+  const distribucionSucursal = data.reduce((acc, row) => {
+    acc[row.sucursal] = (acc[row.sucursal] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
-  // Timeline mensual
-  const timelineMensual = data.reduce((acc, row) => {
-    const mes = row.fecha;
-    acc[mes] = (acc[mes] || 0) + row.valor;
+  // Timeline diario (reservas y personas por día)
+  const timelineDiario = data.reduce((acc, row) => {
+    const dia = row.dia;
+    if (!acc[dia]) {
+      acc[dia] = { reservas: 0, personas: 0 };
+    }
+    acc[dia].reservas += 1;
+    acc[dia].personas += row.personas;
     return acc;
-  }, {} as Record<string, number>);
+  }, {} as Record<string, { reservas: number; personas: number }>);
 
-  // Distribución por canal
-  const distribucionCanal = data.reduce((acc, row) => {
-    acc[row.canal] = (acc[row.canal] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  // Mesas ocupadas por sucursal
+  const mesasPorSucursal = data
+    .filter(row => row.estado === "Confirmado")
+    .reduce((acc, row) => {
+      if (!acc[row.sucursal]) {
+        acc[row.sucursal] = new Set();
+      }
+      acc[row.sucursal].add(row.mesa_asignada);
+      return acc;
+    }, {} as Record<string, Set<string>>);
+
+  const estadoMesas: Record<string, { ocupadas: number; libres: number }> = {
+    Centro: { ocupadas: mesasPorSucursal.Centro?.size || 0, libres: 6 - (mesasPorSucursal.Centro?.size || 0) },
+    Pocitos: { ocupadas: mesasPorSucursal.Pocitos?.size || 0, libres: 6 - (mesasPorSucursal.Pocitos?.size || 0) },
+    Carrasco: { ocupadas: mesasPorSucursal.Carrasco?.size || 0, libres: 6 - (mesasPorSucursal.Carrasco?.size || 0) },
+  };
+
+  // Últimas reservas por sucursal
+  const ultimasReservasPorSucursal = data
+    .sort((a, b) => b.dia.localeCompare(a.dia))
+    .slice(0, 5);
 
   return {
-    totalIngresos,
-    clientesUnicos,
-    proyectosCompletados,
-    tasaConversion,
-    distribucionServicio,
-    timelineMensual,
-    distribucionCanal,
+    ocupacionTotal,
+    reservasTotales,
+    totalPersonas,
+    promedioDiario,
+    distribucionSucursal,
+    timelineDiario,
+    estadoMesas,
+    ultimasReservasPorSucursal,
   };
 }

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { DollarSign, Users, TrendingUp, CheckCircle } from "lucide-react";
+import { Users, Calendar, TrendingUp, Percent } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { fetchCSVData, calculateKPIs, DataRow } from "@/lib/data-service";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { KPICard } from "@/components/KPICard";
 import { ServiceDistributionChart } from "@/components/ServiceDistributionChart";
-import { TimelineChart } from "@/components/TimelineChart";
-import { ChannelDistributionChart } from "@/components/ChannelDistributionChart";
+import { TendenciaDiariaChart } from "@/components/TendenciaDiariaChart";
+import { MapaMesas } from "@/components/MapaMesas";
+import { UltimasReservas } from "@/components/UltimasReservas";
 import { DataTable } from "@/components/DataTable";
 import { Chatbot } from "@/components/Chatbot";
 
@@ -59,55 +60,53 @@ const Index = () => {
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <KPICard
-            title="Ingresos Totales"
-            value={kpis.totalIngresos}
-            icon={DollarSign}
-            trend="+12.5%"
-            suffix=""
+            title="Ocupación Total"
+            value={kpis.ocupacionTotal.toFixed(1)}
+            icon={Percent}
+            trend="+12%"
+            suffix="%"
             animated
           />
           <KPICard
-            title="Clientes Activos"
-            value={kpis.clientesUnicos}
-            icon={Users}
+            title="Reservas Totales"
+            value={kpis.reservasTotales}
+            icon={Calendar}
             trend="+8.2%"
             animated
           />
           <KPICard
-            title="Proyectos Completados"
-            value={kpis.proyectosCompletados}
-            icon={CheckCircle}
+            title="Total Personas"
+            value={kpis.totalPersonas}
+            icon={Users}
             animated
           />
           <KPICard
-            title="Tasa de Conversión"
-            value={kpis.tasaConversion.toFixed(1)}
+            title="Promedio Diario"
+            value={kpis.promedioDiario.toFixed(1)}
             icon={TrendingUp}
-            suffix="%"
             animated
           />
         </div>
 
-        {/* Gráficos */}
+        {/* Gráficos principales */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <TimelineChart data={kpis.timelineMensual} />
-          <ServiceDistributionChart data={kpis.distribucionServicio} />
+          <TendenciaDiariaChart data={kpis.timelineDiario} />
+          <ServiceDistributionChart data={kpis.distribucionSucursal} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <ChannelDistributionChart data={kpis.distribucionCanal} />
-          <div className="glass-card p-6 flex items-center justify-center">
-            <div className="text-center">
-              <h3 className="text-4xl font-bold text-primary glow-text mb-2">
-                {kpis.totalIngresos.toLocaleString("es-ES", {
-                  style: "currency",
-                  currency: "USD",
-                  minimumFractionDigits: 0,
-                })}
-              </h3>
-              <p className="text-muted-foreground">Ingresos del Mes</p>
-              <p className="text-sm text-primary mt-2">+15.3% vs mes anterior</p>
-            </div>
+          <MapaMesas estadoMesas={kpis.estadoMesas} />
+          <UltimasReservas data={data} />
+        </div>
+
+        {/* Widget Principal */}
+        <div className="glass-card p-6 mb-8 flex items-center justify-center">
+          <div className="text-center">
+            <h3 className="text-4xl font-bold text-primary glow-text mb-2">
+              {kpis.reservasTotales} Reservas
+            </h3>
+            <p className="text-muted-foreground">Total del Período</p>
+            <p className="text-sm text-primary mt-2">+15% vs período anterior</p>
           </div>
         </div>
 

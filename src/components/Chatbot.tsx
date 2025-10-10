@@ -55,7 +55,7 @@ export function Chatbot() {
         body: JSON.stringify({
           message: userMessage.content,
           timestamp: userMessage.timestamp.toISOString(),
-          dashboard_context: "analytics_dashboard",
+          dashboard_context: "reservas_restaurante",
           user_session: `session_${Date.now()}`,
         }),
         signal: AbortSignal.timeout(30000),
