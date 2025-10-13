@@ -1,4 +1,5 @@
 import { DataRow } from "@/lib/data-service";
+import { Users } from "lucide-react";
 
 interface MapaMesasProps {
   estadoMesas: Record<string, { ocupadas: number; libres: number }>;
@@ -37,32 +38,54 @@ export function MapaMesas({ estadoMesas, reservas }: MapaMesasProps) {
                   {estado.ocupadas}/{totalMesas} ocupadas
                 </span>
               </div>
-              <div className="grid grid-cols-6 gap-3">
+              <div className="grid grid-cols-3 gap-4">
                 {Array.from({ length: totalMesas }).map((_, idx) => {
                   const mesaNum = idx + 1;
                   const reserva = getMesaInfo(sucursal, mesaNum);
                   const isOcupada = !!reserva;
+                  const isSinAsignar = !reserva;
+                  const isGrupoGrande = reserva && reserva.personas > 6;
+                  
+                  // Determinar color: azul si sin asignar o +6 personas, rojo si ocupada, verde si libre
+                  let bgColor = 'bg-green-500/90 border-green-600';
+                  if (isGrupoGrande || isSinAsignar) {
+                    bgColor = 'bg-blue-500/90 border-blue-600';
+                  } else if (isOcupada) {
+                    bgColor = 'bg-red-500/90 border-red-600';
+                  }
                   
                   return (
                     <div
                       key={idx}
                       className={`
-                        relative aspect-square rounded-xl flex flex-col items-center justify-center text-xs font-semibold
+                        relative rounded-2xl flex flex-col items-center justify-center p-3
                         transition-all duration-300 hover:scale-105 cursor-pointer
-                        shadow-lg
-                        ${isOcupada 
-                          ? 'bg-red-500/90 text-white border-2 border-red-600' 
-                          : 'bg-green-500/90 text-white border-2 border-green-600'
-                        }
+                        shadow-lg border-2 text-white
+                        ${bgColor}
                       `}
-                      style={{
-                        clipPath: "polygon(10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%)"
-                      }}
-                      title={reserva ? `${reserva.nombre} - ${reserva.personas} personas` : 'Disponible'}
+                      title={reserva ? `${reserva.nombre} - ${reserva.personas} personas - ${reserva.hora}` : 'Disponible'}
                     >
-                      <span className="text-base font-bold">{mesaNum}</span>
-                      {isOcupada && reserva && (
-                        <span className="text-xs mt-1">👥 {reserva.personas}</span>
+                      {/* Icono de mesa */}
+                      <div className="mb-2">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="drop-shadow">
+                          <ellipse cx="20" cy="20" rx="16" ry="12" fill="currentColor" opacity="0.9"/>
+                          <rect x="18" y="28" width="4" height="8" fill="currentColor" opacity="0.8"/>
+                        </svg>
+                      </div>
+                      
+                      <span className="text-sm font-bold mb-1">Mesa {mesaNum}</span>
+                      
+                      {isOcupada && reserva ? (
+                        <div className="text-center text-xs space-y-1">
+                          <div className="flex items-center justify-center gap-1">
+                            <Users size={12} />
+                            <span>{reserva.personas}</span>
+                          </div>
+                          <div className="font-semibold">{reserva.hora}</div>
+                          <div className="font-medium truncate max-w-full px-1">{reserva.nombre}</div>
+                        </div>
+                      ) : (
+                        <span className="text-xs">Disponible</span>
                       )}
                     </div>
                   );
