@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Users, Calendar, TrendingUp, Percent } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { fetchCSVData, calculateKPIs, DataRow } from "@/lib/data-service";
@@ -10,11 +10,15 @@ import { MapaMesas } from "@/components/MapaMesas";
 import { UltimasReservas } from "@/components/UltimasReservas";
 import { DataTable } from "@/components/DataTable";
 import { Chatbot } from "@/components/Chatbot";
+import { Filters } from "@/components/Filters";
 
 const Index = () => {
   const [data, setData] = useState<DataRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>();
+  const [selectedSucursal, setSelectedSucursal] = useState<string>("all");
+  const [selectedDia, setSelectedDia] = useState<string>("all");
+  const [selectedEstado, setSelectedEstado] = useState<string>("all");
   const { toast } = useToast();
 
   const loadData = async () => {
@@ -46,7 +50,28 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const kpis = calculateKPIs(data);
+  // Obtener días únicos para el filtro
+  const availableDias = useMemo(() => {
+    return [...new Set(data.map(row => row.dia))].sort();
+  }, [data]);
+
+  // Filtrar datos
+  const filteredData = useMemo(() => {
+    return data.filter(row => {
+      if (selectedSucursal !== "all" && row.sucursal !== selectedSucursal) return false;
+      if (selectedDia !== "all" && row.dia !== selectedDia) return false;
+      if (selectedEstado !== "all" && row.estado !== selectedEstado) return false;
+      return true;
+    });
+  }, [data, selectedSucursal, selectedDia, selectedEstado]);
+
+  const kpis = calculateKPIs(filteredData);
+
+  const handleClearFilters = () => {
+    setSelectedSucursal("all");
+    setSelectedDia("all");
+    setSelectedEstado("all");
+  };
 
   return (
     <div className="min-h-screen bg-background p-6 md:p-8">
@@ -55,6 +80,18 @@ const Index = () => {
           onRefresh={loadData}
           isRefreshing={isLoading}
           lastUpdated={lastUpdated}
+        />
+
+        {/* Filtros */}
+        <Filters
+          selectedSucursal={selectedSucursal}
+          selectedDia={selectedDia}
+          selectedEstado={selectedEstado}
+          onSucursalChange={setSelectedSucursal}
+          onDiaChange={setSelectedDia}
+          onEstadoChange={setSelectedEstado}
+          onClearFilters={handleClearFilters}
+          availableDias={availableDias}
         />
 
         {/* KPI Cards */}
@@ -95,8 +132,8 @@ const Index = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <MapaMesas estadoMesas={kpis.estadoMesas} />
-          <UltimasReservas data={data} />
+          <MapaMesas estadoMesas={kpis.estadoMesas} reservas={filteredData} />
+          <UltimasReservas data={filteredData} />
         </div>
 
         {/* Widget Principal */}
@@ -111,7 +148,7 @@ const Index = () => {
         </div>
 
         {/* Tabla de datos */}
-        <DataTable data={data} />
+        <DataTable data={filteredData} />
 
         {/* Chatbot */}
         <Chatbot />

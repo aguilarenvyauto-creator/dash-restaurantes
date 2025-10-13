@@ -1,9 +1,23 @@
+import { DataRow } from "@/lib/data-service";
+
 interface MapaMesasProps {
   estadoMesas: Record<string, { ocupadas: number; libres: number }>;
+  reservas: DataRow[];
 }
 
-export function MapaMesas({ estadoMesas }: MapaMesasProps) {
-  const sucursales = ["Centro", "Pocitos", "Carrasco"];
+export function MapaMesas({ estadoMesas, reservas }: MapaMesasProps) {
+  const sucursales = ["La luna", "Blue Moon", "Finca Moon"];
+  
+  // Obtener info de cada mesa
+  const getMesaInfo = (sucursal: string, mesaNum: number) => {
+    const mesaNombre = `Mesa ${mesaNum}`;
+    const reserva = reservas.find(
+      r => r.sucursal === sucursal && 
+      r.mesa_asignada === mesaNombre && 
+      r.estado === "Confirmado"
+    );
+    return reserva;
+  };
   
   return (
     <div className="glass-card p-6">
@@ -23,22 +37,33 @@ export function MapaMesas({ estadoMesas }: MapaMesasProps) {
                   {estado.ocupadas}/{totalMesas} ocupadas
                 </span>
               </div>
-              <div className="grid grid-cols-6 gap-2">
+              <div className="grid grid-cols-6 gap-3">
                 {Array.from({ length: totalMesas }).map((_, idx) => {
-                  const isOcupada = idx < estado.ocupadas;
+                  const mesaNum = idx + 1;
+                  const reserva = getMesaInfo(sucursal, mesaNum);
+                  const isOcupada = !!reserva;
+                  
                   return (
                     <div
                       key={idx}
                       className={`
-                        aspect-square rounded-lg flex items-center justify-center text-xs font-semibold
-                        transition-all duration-300 hover:scale-110
+                        relative aspect-square rounded-xl flex flex-col items-center justify-center text-xs font-semibold
+                        transition-all duration-300 hover:scale-105 cursor-pointer
+                        shadow-lg
                         ${isOcupada 
-                          ? 'bg-primary/20 text-primary border-2 border-primary glow-effect' 
-                          : 'bg-muted/50 text-muted-foreground border border-border'
+                          ? 'bg-red-500/90 text-white border-2 border-red-600' 
+                          : 'bg-green-500/90 text-white border-2 border-green-600'
                         }
                       `}
+                      style={{
+                        clipPath: "polygon(10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%)"
+                      }}
+                      title={reserva ? `${reserva.nombre} - ${reserva.personas} personas` : 'Disponible'}
                     >
-                      {idx + 1}
+                      <span className="text-base font-bold">{mesaNum}</span>
+                      {isOcupada && reserva && (
+                        <span className="text-xs mt-1">👥 {reserva.personas}</span>
+                      )}
                     </div>
                   );
                 })}

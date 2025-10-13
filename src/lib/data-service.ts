@@ -71,12 +71,12 @@ function parseCSV(text: string): Record<string, string>[] {
 // Datos de ejemplo para desarrollo
 function getMockData(): DataRow[] {
   return [
-    { nombre: "Aguilar López", dia: "10/11/2025", hora: "21:30", personas: 4, especificaciones: "Mesa cómoda", sucursal: "Centro", mesa_asignada: "Mesa 4", estado: "Confirmado" },
-    { nombre: "García Torres", dia: "10/11/2025", hora: "20:00", personas: 2, especificaciones: "Cena romántica", sucursal: "Centro", mesa_asignada: "Mesa 7", estado: "Confirmado" },
-    { nombre: "Pérez Hernández", dia: "10/11/2025", hora: "22:00", personas: 5, especificaciones: "Cumpleaños", sucursal: "Pocitos", mesa_asignada: "Mesa 10", estado: "Pendiente" },
-    { nombre: "López Ramírez", dia: "10/11/2025", hora: "14:30", personas: 3, especificaciones: "Cerca de ventana", sucursal: "Carrasco", mesa_asignada: "Mesa 3", estado: "Confirmado" },
-    { nombre: "Ruiz González", dia: "11/11/2025", hora: "21:00", personas: 6, especificaciones: "Grupo grande", sucursal: "Centro", mesa_asignada: "Mesa 12", estado: "Confirmado" },
-    { nombre: "Fernández Díaz", dia: "11/11/2025", hora: "13:00", personas: 2, especificaciones: "Menú ejecutivo", sucursal: "Pocitos", mesa_asignada: "Mesa 2", estado: "Confirmado" },
+    { nombre: "Aguilar López", dia: "10/11/2025", hora: "21:30", personas: 4, especificaciones: "Mesa cómoda", sucursal: "La luna", mesa_asignada: "Mesa 4", estado: "Confirmado" },
+    { nombre: "García Torres", dia: "10/11/2025", hora: "20:00", personas: 2, especificaciones: "Cena romántica", sucursal: "La luna", mesa_asignada: "Mesa 7", estado: "Confirmado" },
+    { nombre: "Pérez Hernández", dia: "10/11/2025", hora: "22:00", personas: 5, especificaciones: "Cumpleaños", sucursal: "Blue Moon", mesa_asignada: "Mesa 10", estado: "Pendiente" },
+    { nombre: "López Ramírez", dia: "10/11/2025", hora: "14:30", personas: 3, especificaciones: "Cerca de ventana", sucursal: "Finca Moon", mesa_asignada: "Mesa 3", estado: "Confirmado" },
+    { nombre: "Ruiz González", dia: "11/11/2025", hora: "21:00", personas: 6, especificaciones: "Grupo grande", sucursal: "La luna", mesa_asignada: "Mesa 12", estado: "Confirmado" },
+    { nombre: "Fernández Díaz", dia: "11/11/2025", hora: "13:00", personas: 2, especificaciones: "Menú ejecutivo", sucursal: "Blue Moon", mesa_asignada: "Mesa 2", estado: "Confirmado" },
   ];
 }
 
@@ -121,9 +121,9 @@ export function calculateKPIs(data: DataRow[]) {
     }, {} as Record<string, Set<string>>);
 
   const estadoMesas: Record<string, { ocupadas: number; libres: number }> = {
-    Centro: { ocupadas: mesasPorSucursal.Centro?.size || 0, libres: 6 - (mesasPorSucursal.Centro?.size || 0) },
-    Pocitos: { ocupadas: mesasPorSucursal.Pocitos?.size || 0, libres: 6 - (mesasPorSucursal.Pocitos?.size || 0) },
-    Carrasco: { ocupadas: mesasPorSucursal.Carrasco?.size || 0, libres: 6 - (mesasPorSucursal.Carrasco?.size || 0) },
+    "La luna": { ocupadas: mesasPorSucursal["La luna"]?.size || 0, libres: 6 - (mesasPorSucursal["La luna"]?.size || 0) },
+    "Blue Moon": { ocupadas: mesasPorSucursal["Blue Moon"]?.size || 0, libres: 6 - (mesasPorSucursal["Blue Moon"]?.size || 0) },
+    "Finca Moon": { ocupadas: mesasPorSucursal["Finca Moon"]?.size || 0, libres: 6 - (mesasPorSucursal["Finca Moon"]?.size || 0) },
   };
 
   // Últimas reservas por sucursal
