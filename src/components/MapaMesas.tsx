@@ -46,22 +46,24 @@ export function MapaMesas({ estadoMesas, reservas }: MapaMesasProps) {
                   const isSinAsignar = !reserva;
                   const isGrupoGrande = reserva && reserva.personas > 6;
                   
-                  // Determinar color: azul si sin asignar o +6 personas, rojo si ocupada, verde si libre
-                  let bgColor = 'bg-green-500/90 border-green-600';
+                  // Determinar color: azul si sin asignar o +6 personas, rojo si ocupada, verde corporativo si libre
+                  let bgColor = 'bg-primary/90 border-primary';
+                  let textColor = 'text-primary-foreground';
                   if (isGrupoGrande || isSinAsignar) {
                     bgColor = 'bg-blue-500/90 border-blue-600';
+                    textColor = 'text-white';
                   } else if (isOcupada) {
                     bgColor = 'bg-red-500/90 border-red-600';
+                    textColor = 'text-white';
                   }
                   
                   return (
                     <div
                       key={idx}
                       className={`
-                        relative rounded-2xl flex flex-col items-center justify-center p-3
+                        relative rounded-2xl flex flex-col items-center justify-center p-3 h-40
                         transition-all duration-300 hover:scale-105 cursor-pointer
-                        shadow-lg border-2 text-white
-                        ${bgColor}
+                        shadow-lg border-2 ${bgColor} ${textColor}
                       `}
                       title={reserva ? `${reserva.nombre} - ${reserva.personas} personas - ${reserva.hora}` : 'Disponible'}
                     >

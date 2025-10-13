@@ -1,14 +1,24 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
 interface ServiceDistributionChartProps {
   data: Record<string, number>;
 }
 
+const COLORS = [
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
+];
+
 export function ServiceDistributionChart({ data }: ServiceDistributionChartProps) {
-  const chartData = Object.entries(data).map(([servicio, valor]) => ({
-    servicio,
-    valor,
+  const chartData = Object.entries(data).map(([name, value]) => ({
+    name,
+    value,
   }));
+
+  const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
   return (
     <div className="glass-card p-6">
@@ -16,18 +26,21 @@ export function ServiceDistributionChart({ data }: ServiceDistributionChartProps
         Distribución por Sucursales
       </h3>
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-          <XAxis 
-            dataKey="servicio" 
-            stroke="hsl(var(--muted-foreground))"
-            fontSize={12}
-          />
-          <YAxis 
-            stroke="hsl(var(--muted-foreground))"
-            fontSize={12}
-            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-          />
+        <PieChart>
+          <Pie
+            data={chartData}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            outerRadius={100}
+            fill="hsl(var(--primary))"
+            dataKey="value"
+          >
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
           <Tooltip
             contentStyle={{
               backgroundColor: "hsl(var(--popover))",
@@ -35,14 +48,20 @@ export function ServiceDistributionChart({ data }: ServiceDistributionChartProps
               borderRadius: "0.5rem",
               color: "hsl(var(--foreground))",
             }}
-            formatter={(value: number) => [`$${value.toLocaleString()}`, "Ingresos"]}
+            formatter={(value: number) => [
+              `${value} reservas (${((value / total) * 100).toFixed(1)}%)`,
+              "Total"
+            ]}
           />
-          <Bar 
-            dataKey="valor" 
-            fill="hsl(var(--primary))" 
-            radius={[8, 8, 0, 0]}
+          <Legend 
+            verticalAlign="bottom" 
+            height={36}
+            wrapperStyle={{
+              color: "hsl(var(--foreground))",
+              fontSize: "14px"
+            }}
           />
-        </BarChart>
+        </PieChart>
       </ResponsiveContainer>
     </div>
   );
