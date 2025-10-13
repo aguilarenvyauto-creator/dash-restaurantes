@@ -54,7 +54,7 @@ function parseCSV(text: string): Record<string, string>[] {
   const lines = text.trim().split("\n");
   if (lines.length < 2) return [];
 
-  const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
+  const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/\s+/g, "_"));
   
   return lines.slice(1).map(line => {
     const values = line.split(",").map(v => v.trim());
