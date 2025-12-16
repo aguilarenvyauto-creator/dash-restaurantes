@@ -44,14 +44,23 @@ export function DataTable({ data }: DataTableProps) {
         <table className="w-full">
           <thead>
             <tr className="border-b border-border">
-              {["nombre", "dia", "hora", "personas", "sucursal", "mesa_asignada", "especificaciones", "estado"].map((key) => (
+              {[
+                { key: "nombre", label: "Nombre" },
+                { key: "dia", label: "Día" },
+                { key: "hora", label: "Hora" },
+                { key: "personas", label: "Personas" },
+                { key: "sucursal", label: "Sucursal" },
+                { key: "mesa_asignada", label: "Mesa Asignada" },
+                { key: "especificaciones", label: "Especificaciones" },
+                { key: "estado", label: "Estado" },
+              ].map((col) => (
                 <th 
-                  key={key}
+                  key={col.key}
                   className="text-left py-3 px-4 font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-                  onClick={() => handleSort(key as SortKey)}
+                  onClick={() => handleSort(col.key as SortKey)}
                 >
                   <div className="flex items-center gap-2">
-                    {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    {col.label}
                     <ArrowUpDown className="w-4 h-4" />
                   </div>
                 </th>
