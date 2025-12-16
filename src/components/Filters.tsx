@@ -59,7 +59,7 @@ export function Filters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
-              {availableDias.map((dia) => (
+              {availableDias.filter(dia => dia && dia.trim() !== "").map((dia) => (
                 <SelectItem key={dia} value={dia}>
                   {dia}
                 </SelectItem>
