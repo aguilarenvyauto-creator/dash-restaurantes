@@ -121,7 +121,7 @@ export function calculateKPIs(data: DataRow[]) {
     }, {} as Record<string, Set<string>>);
 
   const estadoMesas: Record<string, { ocupadas: number; libres: number }> = {
-    "La luna": { ocupadas: mesasPorSucursal["La luna"]?.size || 0, libres: 6 - (mesasPorSucursal["La luna"]?.size || 0) },
+    "La Luna": { ocupadas: mesasPorSucursal["La Luna"]?.size || mesasPorSucursal["La luna"]?.size || 0, libres: 6 - (mesasPorSucursal["La Luna"]?.size || mesasPorSucursal["La luna"]?.size || 0) },
     "Blue Moon": { ocupadas: mesasPorSucursal["Blue Moon"]?.size || 0, libres: 6 - (mesasPorSucursal["Blue Moon"]?.size || 0) },
     "Finca Moon": { ocupadas: mesasPorSucursal["Finca Moon"]?.size || 0, libres: 6 - (mesasPorSucursal["Finca Moon"]?.size || 0) },
   };
