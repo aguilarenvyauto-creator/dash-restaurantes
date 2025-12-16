@@ -15,9 +15,13 @@ export function MapaMesas({ estadoMesas, reservas }: MapaMesasProps) {
     const reserva = reservas.find(
       r => r.sucursal === sucursal && 
       r.mesa_asignada === mesaNombre && 
-      r.estado === "Confirmado"
+      (r.estado === "Confirmado" || r.estado === "Bloqueado" || r.estado === "Pendiente")
     );
     return reserva;
+  };
+  
+  const isBloqueada = (reserva: DataRow | undefined) => {
+    return reserva?.estado === "Bloqueado";
   };
   
   return (
@@ -46,10 +50,15 @@ export function MapaMesas({ estadoMesas, reservas }: MapaMesasProps) {
                   const isSinAsignar = !reserva;
                   const isGrupoGrande = reserva && reserva.personas > 6;
                   
-                  // Determinar color: azul si sin asignar o +6 personas, rojo si ocupada, verde corporativo si libre
+                  const bloqueada = isBloqueada(reserva);
+                  
+                  // Determinar color: gris si bloqueada, azul si +6 personas, rojo si ocupada, verde si libre
                   let bgColor = 'bg-primary/90 border-primary';
                   let textColor = 'text-primary-foreground';
-                  if (isGrupoGrande || isSinAsignar) {
+                  if (bloqueada) {
+                    bgColor = 'bg-gray-500/90 border-gray-600';
+                    textColor = 'text-white';
+                  } else if (isGrupoGrande) {
                     bgColor = 'bg-blue-500/90 border-blue-600';
                     textColor = 'text-white';
                   } else if (isOcupada) {
@@ -65,7 +74,7 @@ export function MapaMesas({ estadoMesas, reservas }: MapaMesasProps) {
                         transition-all duration-300 hover:scale-105 cursor-pointer
                         shadow-lg border-2 ${bgColor} ${textColor}
                       `}
-                      title={reserva ? `${reserva.nombre} - ${reserva.personas} personas - ${reserva.hora}` : 'Disponible'}
+                      title={bloqueada ? 'Mesa Bloqueada' : reserva ? `${reserva.nombre} - ${reserva.personas} personas - ${reserva.hora}` : 'Disponible'}
                     >
                       {/* Icono de mesa */}
                       <div className="mb-2">
@@ -77,7 +86,9 @@ export function MapaMesas({ estadoMesas, reservas }: MapaMesasProps) {
                       
                       <span className="text-sm font-bold mb-1">Mesa {mesaNum}</span>
                       
-                      {isOcupada && reserva ? (
+                      {bloqueada ? (
+                        <span className="text-xs font-semibold">Bloqueada</span>
+                      ) : isOcupada && reserva ? (
                         <div className="text-center text-xs space-y-1">
                           <div className="flex items-center justify-center gap-1">
                             <Users size={12} />
