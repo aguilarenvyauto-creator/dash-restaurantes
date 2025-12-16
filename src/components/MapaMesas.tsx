@@ -7,13 +7,13 @@ interface MapaMesasProps {
 }
 
 export function MapaMesas({ estadoMesas, reservas }: MapaMesasProps) {
-  const sucursales = ["La luna", "Blue Moon", "Finca Moon"];
+  const sucursales = ["La Luna", "Blue Moon", "Finca Moon"];
   
-  // Obtener info de cada mesa
+  // Obtener info de cada mesa (comparación insensible a mayúsculas)
   const getMesaInfo = (sucursal: string, mesaNum: number) => {
     const mesaNombre = `Mesa ${mesaNum}`;
     const reserva = reservas.find(
-      r => r.sucursal === sucursal && 
+      r => r.sucursal.toLowerCase() === sucursal.toLowerCase() && 
       r.mesa_asignada === mesaNombre && 
       (r.estado === "Confirmado" || r.estado === "Bloqueado" || r.estado === "Pendiente")
     );
@@ -23,6 +23,7 @@ export function MapaMesas({ estadoMesas, reservas }: MapaMesasProps) {
   const isBloqueada = (reserva: DataRow | undefined) => {
     return reserva?.estado === "Bloqueado";
   };
+  
   
   return (
     <div className="glass-card p-6">
